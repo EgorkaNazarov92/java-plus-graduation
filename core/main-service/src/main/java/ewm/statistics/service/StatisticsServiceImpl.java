@@ -38,7 +38,6 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 		ObjectMapper mapper = new ObjectMapper();
 		List<ViewStatsDTO> stats;
-		List<?> list;
 
 		StatsRequestDTO requestDTO = new StatsRequestDTO(
 				start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
