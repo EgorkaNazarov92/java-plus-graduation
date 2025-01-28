@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ewm.dto.EndpointHitDTO;
 import ewm.dto.StatsRequestDTO;
 import ewm.dto.ViewStatsDTO;
-import ewm.stats.StatsClient;
+import ewm.StatsClient;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +25,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 	@Override
 	public void saveStats(HttpServletRequest request) {
-		statsClient.saveHit(EndpointHitDTO.builder()
+		statsClient.createHit(EndpointHitDTO.builder()
 				.app("ewm-main-service")
 				.ip(request.getRemoteAddr())
 				.uri(request.getRequestURI())
@@ -48,25 +46,11 @@ public class StatisticsServiceImpl implements StatisticsService {
 				uris,
 				true);
 
-		ResponseEntity<Object> response = statsClient.getStats(requestDTO);
-
-		if (!response.getStatusCode().is2xxSuccessful() || !response.hasBody()) {
-			throw new HttpServerErrorException(response.getStatusCode(),
-					String.format("Ошибка получения статистики по url --> %s", uris));
-		}
-
-		if (response.getBody() instanceof List<?>) {
-			list = (List<?>) response.getBody();
-		} else {
-			throw new ClassCastException("Данные с сервера статистики не могут быть извлечены");
-		}
-		if (list.isEmpty()) {
+		stats = statsClient.getHits(requestDTO);
+		if (stats.isEmpty()) {
 			return uris.stream().map(this::getEventIdFromUri)
 					.collect(Collectors.toMap(Function.identity(), s -> 0L));
 		} else {
-			stats = list.stream()
-					.map(e -> mapper.convertValue(e, ViewStatsDTO.class))
-					.collect(Collectors.toList());
 			log.info("Данные статистики --> {}", stats);
 			return stats.stream()
 					.collect(Collectors.toMap(ViewStats -> getEventIdFromUri(ViewStats.getUri()),

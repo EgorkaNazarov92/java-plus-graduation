@@ -5,7 +5,3 @@ logging:
         web:
           client:
             RestTemplate: DEBUG
-stats:
-  server:
-    url: http://localhost:9090
-    name: stats-service

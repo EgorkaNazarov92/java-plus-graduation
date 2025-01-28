@@ -13,7 +13,3 @@ spring:
     url: jdbc:postgresql://localhost:5433/ewm-main
     username: test
     password: test
-stats:
-  server:
-    url: http://localhost:9090
-    name: stats-service
