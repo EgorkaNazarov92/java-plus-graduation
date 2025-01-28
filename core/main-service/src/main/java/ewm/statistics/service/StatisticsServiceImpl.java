@@ -35,8 +35,6 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 	@Override
 	public Map<Long, Long> getStats(LocalDateTime start, LocalDateTime end, List<String> uris) {
-
-		ObjectMapper mapper = new ObjectMapper();
 		List<ViewStatsDTO> stats;
 
 		StatsRequestDTO requestDTO = new StatsRequestDTO(
