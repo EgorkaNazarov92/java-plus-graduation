@@ -1,10 +1,9 @@
 package ewm.statistics.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import ewm.StatsClient;
 import ewm.dto.EndpointHitDTO;
 import ewm.dto.StatsRequestDTO;
 import ewm.dto.ViewStatsDTO;
-import ewm.StatsClient;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
