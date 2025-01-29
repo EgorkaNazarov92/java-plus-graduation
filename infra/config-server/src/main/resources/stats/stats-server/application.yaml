@@ -11,6 +11,6 @@ spring:
       mode: always
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/ewm-stats
+    url: jdbc:postgresql://stats-db:5432/ewm-stats
     username: test
     password: test
