@@ -4,7 +4,6 @@ import ewm.dto.EndpointHitDTO;
 import ewm.dto.EndpointHitResponseDto;
 import ewm.dto.StatsRequestDTO;
 import ewm.dto.ViewStatsDTO;
-import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
