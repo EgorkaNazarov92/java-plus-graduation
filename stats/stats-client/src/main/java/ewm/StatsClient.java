@@ -15,7 +15,7 @@ import java.util.List;
 @FeignClient(name = "stats-server")
 public interface StatsClient {
 	@PostMapping("/hit")
-	EndpointHitResponseDto createHit(@RequestBody @Valid EndpointHitDTO endpointHitDto);
+	EndpointHitResponseDto createHit(@RequestBody EndpointHitDTO endpointHitDto);
 
 	@GetMapping("/stats")
 	List<ViewStatsDTO> getHits(StatsRequestDTO statsRequestDTO);
