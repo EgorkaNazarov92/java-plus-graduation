@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.RequestClient;
+import ru.practicum.UserClient;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.dto.event.*;
@@ -18,9 +20,7 @@ import ru.practicum.error.exception.NotFoundException;
 import ru.practicum.error.exception.ValidationException;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
-import ru.practicum.request.RequestClient;
 import ru.practicum.service.StatisticsService;
-import ru.practicum.user.UserClient;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -44,7 +44,7 @@ public class EventServiceImpl implements EventService {
 	public List<EventDto> getEvents(Long userId, Integer from, Integer size) {
 		getUser(userId);
 		Pageable pageable = PageRequest.of(from, size);
-		return repository.findByInitiatorId(userId, pageable).stream()
+		return repository.findByInitiator(userId, pageable).stream()
 				.map(this::eventToDto)
 				.toList();
 	}
@@ -52,7 +52,7 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public EventDto getEventById(Long userId, Long id, String ip, String uri) {
 		getUser(userId);
-		Optional<Event> event = repository.findByIdAndInitiatorId(id, userId);
+		Optional<Event> event = repository.findByIdAndInitiator(id, userId);
 		if (event.isEmpty()) {
 			throw new NotFoundException(EVENT_NOT_FOUND_MESSAGE);
 		}
