@@ -1,0 +1,62 @@
+package ru.practicum.user.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.user.UserDto;
+import ru.practicum.error.exception.ExistException;
+import ru.practicum.error.exception.NotFoundException;
+import ru.practicum.user.mapper.UserMapper;
+import ru.practicum.user.model.User;
+import ru.practicum.user.repository.UserRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Slf4j
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+	private final UserRepository userRepository;
+
+	@Override
+	public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
+		int page = from / size;
+		Pageable pageRequest = PageRequest.of(page, size);
+		if (ids == null || ids.isEmpty()) return UserMapper.mapToUserDto(userRepository.findAll(pageRequest));
+		else return UserMapper.mapToUserDto(userRepository.findAllById(ids));
+	}
+
+	@Transactional
+	@Override
+	public UserDto createUser(UserDto userDto) {
+		if (userRepository.getByEmail(userDto.getEmail()).isPresent())
+			throw new ExistException("Такой email уже есть");
+		User user = UserMapper.mapToUser(userDto);
+		log.info("Создан user --> {}", user);
+		return UserMapper.mapToUserDto(userRepository.save(user));
+	}
+
+	@Transactional
+	@Override
+	public void deleteUser(Long userId) {
+		getUserFromRepo(userId);
+		userRepository.deleteById(userId);
+		log.info("Удален user с id --> {}", userId);
+	}
+
+	@Override
+	public UserDto getUser(Long userId) {
+		return UserMapper.mapToUserDto(getUserFromRepo(userId));
+	}
+
+	private User getUserFromRepo(Long userId) {
+		Optional<User> user = userRepository.findById(userId);
+		if (user.isEmpty()) throw new NotFoundException("Пользователя с id = " + userId.toString() + " не существует");
+		return user.get();
+	}
+}
