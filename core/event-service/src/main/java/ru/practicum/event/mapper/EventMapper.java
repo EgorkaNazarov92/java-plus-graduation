@@ -1,11 +1,7 @@
 package ru.practicum.event.mapper;
 
 import ru.practicum.category.mapper.CategoryMapper;
-import ru.practicum.dto.event.CreateEventDto;
-import ru.practicum.dto.event.EventDto;
-import ru.practicum.dto.event.LocationDto;
-import ru.practicum.dto.event.UpdateEventDto;
-import ru.practicum.dto.user.UserDto;
+import ru.practicum.dto.event.*;
 import ru.practicum.event.model.Event;
 
 import java.time.LocalDateTime;
@@ -46,7 +42,7 @@ public class EventMapper {
 				.participantLimit(event.getParticipantLimit())
 				.location(LocationDto.builder().lat(event.getLat()).lon(event.getLon()).build())
 				.category(CategoryMapper.INSTANCE.categoryToCategoryDto(event.getCategory()))
-				.initiator(UserDto.builder().id(event.getInitiator()).build())
+				.initiator(event.getInitiator())
 				.requestModeration(event.getRequestModeration())
 				.views((event.getViews() == null) ? 0L : event.getViews())
 				.confirmedRequests(event.getConfirmedRequests())
@@ -78,5 +74,26 @@ public class EventMapper {
 			event.setLon(dto.getLocation().getLon());
 		}
 		return event;
+	}
+
+	public static EventClientDto mapEventToEventClientDto(Event event) {
+		EventClientDto dto = EventClientDto.builder()
+				.id(event.getId())
+				.title(event.getTitle())
+				.eventDate(event.getEventDate())
+				.annotation(event.getAnnotation())
+				.paid(event.getPaid())
+				.createdOn(event.getCreatedOn())
+				.description(event.getDescription())
+				.state(event.getState())
+				.participantLimit(event.getParticipantLimit())
+				.location(LocationDto.builder().lat(event.getLat()).lon(event.getLon()).build())
+				.category(CategoryMapper.INSTANCE.categoryToCategoryDto(event.getCategory()))
+				.initiator(event.getInitiator())
+				.requestModeration(event.getRequestModeration())
+				.views((event.getViews() == null) ? 0L : event.getViews())
+				.confirmedRequests(event.getConfirmedRequests())
+				.build();
+		return dto;
 	}
 }

@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.RequestClient;
-import ru.practicum.UserClient;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.dto.event.*;
@@ -20,7 +18,9 @@ import ru.practicum.error.exception.NotFoundException;
 import ru.practicum.error.exception.ValidationException;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
+import ru.practicum.request.RequestClient;
 import ru.practicum.service.StatisticsService;
+import ru.practicum.user.UserClient;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -44,7 +44,7 @@ public class EventServiceImpl implements EventService {
 	public List<EventDto> getEvents(Long userId, Integer from, Integer size) {
 		getUser(userId);
 		Pageable pageable = PageRequest.of(from, size);
-		return repository.findByInitiator(userId, pageable).stream()
+		return repository.findByInitiatorId(userId, pageable).stream()
 				.map(this::eventToDto)
 				.toList();
 	}
@@ -52,7 +52,7 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public EventDto getEventById(Long userId, Long id, String ip, String uri) {
 		getUser(userId);
-		Optional<Event> event = repository.findByIdAndInitiator(id, userId);
+		Optional<Event> event = repository.findByIdAndInitiatorId(id, userId);
 		if (event.isEmpty()) {
 			throw new NotFoundException(EVENT_NOT_FOUND_MESSAGE);
 		}
@@ -74,7 +74,8 @@ public class EventServiceImpl implements EventService {
 			event.setRequestModeration(true);
 		}
 
-		event.setInitiator(user.getId());
+		event.setInitiatorId(user.getId());
+		event.setInitiator(user);
 		event.setCategory(category);
 		event.setState(EventState.PENDING);
 		Event newEvent = repository.save(event);
@@ -129,7 +130,10 @@ public class EventServiceImpl implements EventService {
 			Map<Long, Long> views = statisticsService.getStats(oldestEventPublishedOn, LocalDateTime.now(), uris);
 			events
 					.stream()
-					.peek(event -> event.setViews(views.get(event.getId())));
+					.peek(event -> {
+						event.setViews(views.get(event.getId()));
+						event.setInitiator(getUser(event.getInitiatorId()));
+					});
 			events = repository.saveAll(events);
 		}
 		return EventMapper.mapToEventDto(events);
@@ -146,6 +150,7 @@ public class EventServiceImpl implements EventService {
 				event.getPublishedOn(), LocalDateTime.now(), List.of(request.getRequestURI())).get(id);
 		event.setViews(views);
 		event = repository.save(event);
+		event.setInitiator(getUser(event.getInitiatorId()));
 		return EventMapper.mapEventToEventDto(event);
 	}
 
@@ -185,18 +190,21 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public EventDto saveEvent(EventDto event) {
+	public EventClientDto saveEvent(EventClientDto event) {
 		Event origEvent = getEvent(event.getId());
 		if (event.getConfirmedRequests() != null
 				&& !event.getConfirmedRequests().equals(origEvent.getConfirmedRequests())) {
 			origEvent.setConfirmedRequests(event.getConfirmedRequests());
 		}
-		return EventMapper.mapEventToEventDto(repository.save(origEvent));
+		origEvent.setInitiator(getUser(origEvent.getInitiatorId()));
+		return EventMapper.mapEventToEventClientDto(repository.save(origEvent));
 	}
 
 	@Override
-	public EventDto getIntEvent(Long eventId) {
-		return EventMapper.mapEventToEventDto(getEvent(eventId));
+	public EventClientDto getIntEvent(Long eventId) {
+		Event event = getEvent(eventId);
+		event.setInitiator(getUser(event.getInitiatorId()));
+		return EventMapper.mapEventToEventClientDto(event);
 	}
 
 	@Override
@@ -210,6 +218,8 @@ public class EventServiceImpl implements EventService {
 				PageRequest.of(requestParams.getFrom() / requestParams.getSize(),
 						requestParams.getSize())
 		);
+		events.stream()
+				.peek(event -> event.setInitiator(getUser(event.getInitiatorId())));
 		return EventMapper.mapToEventDto(events);
 	}
 
@@ -218,11 +228,13 @@ public class EventServiceImpl implements EventService {
 		Event event = getEvent(eventId);
 		checkEventForUpdate(event, eventDto.getStateAction());
 		Event updatedEvent = repository.save(prepareEventForUpdate(event, eventDto));
+		updatedEvent.setInitiator(getUser(updatedEvent.getInitiatorId()));
 		EventDto result = EventMapper.mapEventToEventDto(updatedEvent);
 		return result;
 	}
 
 	private EventDto eventToDto(Event event) {
+		event.setInitiator(getUser(event.getInitiatorId()));
 		return EventMapper.mapEventToEventDto(event);
 	}
 

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import ru.practicum.category.model.Category;
 import ru.practicum.dto.event.types.EventState;
+import ru.practicum.dto.user.UserDto;
 
 import java.time.LocalDateTime;
 
@@ -37,7 +38,10 @@ public class Event {
 	private Category category;
 
 	@Column(name = "user_id")
-	private Long initiator;
+	private Long initiatorId;
+
+	@Transient
+	private UserDto initiator;
 
 	private Double lat;
 	private Double lon;

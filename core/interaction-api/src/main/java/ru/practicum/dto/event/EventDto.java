@@ -1,8 +1,11 @@
 package ru.practicum.dto.event;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.config.CustomLocalDateTimeDeserializer;
+import ru.practicum.config.CustomLocalDateTimeSerializer;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.user.UserDto;
 
@@ -14,13 +17,17 @@ public class EventDto {
 	private Long id;
 	private String annotation;
 	private Integer confirmedRequests;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
+	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
 	private LocalDateTime createdOn;
 	private String description;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
+	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
 	private LocalDateTime eventDate;
 	private Boolean paid;
 	private Integer participantLimit;
+	@JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
+	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
 	private LocalDateTime publishedOn;
 	private Boolean requestModeration;
 	private String state;

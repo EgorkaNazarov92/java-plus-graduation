@@ -17,5 +17,8 @@ public interface RequestMapper {
 
 	List<RequestDto> mapListRequests(List<Request> requests);
 
-	List<Request> mapListDtoRequests(List<RequestDto> requests);
+	List<Request> mapListDtoToRequests(List<RequestDto> requests);
+
+	@Mapping(source = "created", target = "created", dateFormat = "yyyy-MM-dd HH:mm:ss")
+	Request mapToRequest(RequestDto request);
 }

@@ -1,4 +1,4 @@
-package ru.practicum;
+package ru.practicum.user;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

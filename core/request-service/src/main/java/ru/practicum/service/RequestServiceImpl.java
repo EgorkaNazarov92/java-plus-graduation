@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.UserClient;
-import ru.practicum.dto.event.EventDto;
+import ru.practicum.dto.event.EventClientDto;
 import ru.practicum.dto.event.types.EventState;
 import ru.practicum.dto.request.RequestDto;
 import ru.practicum.dto.request.types.RequestStatus;
@@ -16,6 +15,7 @@ import ru.practicum.event.EventClient;
 import ru.practicum.mapper.RequestMapper;
 import ru.practicum.model.Request;
 import ru.practicum.repository.RequestRepository;
+import ru.practicum.user.UserClient;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,7 +39,7 @@ public class RequestServiceImpl implements RequestService {
 	@Transactional
 	@Override
 	public RequestDto createRequest(Long userId, Long eventId) {
-		EventDto event = getEvent(eventId);
+		EventClientDto event = getEvent(eventId);
 		UserDto user = getUser(userId);
 		checkRequest(userId, event);
 		Request request = Request.builder()
@@ -67,7 +67,7 @@ public class RequestServiceImpl implements RequestService {
 			throw new ConflictException("Другой пользователь не может отменить запрос");
 		request.setStatus(RequestStatus.CANCELED);
 		requestRepository.save(request);
-		EventDto event = getEvent(request.getEvent());
+		EventClientDto event = getEvent(request.getEvent());
 		event.setConfirmedRequests(event.getConfirmedRequests() - 1);
 		eventClient.saveEvent(event);
 		return RequestMapper.INSTANCE.mapToRequestDto(request);
@@ -83,13 +83,14 @@ public class RequestServiceImpl implements RequestService {
 		return RequestMapper.INSTANCE.mapListRequests(requestRepository.findAllById(requestIds));
 	}
 
+	@Transactional
 	@Override
 	public List<RequestDto> saveRequests(List<RequestDto> requests) {
 		return RequestMapper.INSTANCE.mapListRequests(
-				requestRepository.saveAll(RequestMapper.INSTANCE.mapListDtoRequests(requests)));
+				requestRepository.saveAll(RequestMapper.INSTANCE.mapListDtoToRequests(requests)));
 	}
 
-	private void checkRequest(Long userId, EventDto event) {
+	private void checkRequest(Long userId, EventClientDto event) {
 		if (!requestRepository.findAllByRequesterAndEvent(userId, event.getId()).isEmpty())
 			throw new ConflictException("нельзя добавить повторный запрос");
 		if (event.getInitiator().getId().equals(userId))
@@ -100,8 +101,8 @@ public class RequestServiceImpl implements RequestService {
 			throw new ConflictException("у события достигнут лимит запросов на участие");
 	}
 
-	private EventDto getEvent(Long eventId) {
-		Optional<EventDto> event = Optional.ofNullable(eventClient.getEvent(eventId));
+	private EventClientDto getEvent(Long eventId) {
+		Optional<EventClientDto> event = Optional.ofNullable(eventClient.getEvent(eventId));
 		if (event.isEmpty())
 			throw new NotFoundException("События с id = " + eventId.toString() + " не существует");
 		return event.get();

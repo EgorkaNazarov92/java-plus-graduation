@@ -3,10 +3,9 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.UserClient;
 import ru.practicum.dto.comment.CommentDto;
 import ru.practicum.dto.comment.CreateCommentDto;
-import ru.practicum.dto.event.EventDto;
+import ru.practicum.dto.event.EventClientDto;
 import ru.practicum.dto.user.UserDto;
 import ru.practicum.error.exception.ConflictException;
 import ru.practicum.error.exception.NotFoundException;
@@ -14,6 +13,7 @@ import ru.practicum.event.EventClient;
 import ru.practicum.mapper.CommentMapper;
 import ru.practicum.model.Comment;
 import ru.practicum.repository.CommentRepository;
+import ru.practicum.user.UserClient;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +33,7 @@ public class CommentServiceImpl implements CommentService {
 	@Transactional
 	public CommentDto addComment(Long userId, Long eventId, CreateCommentDto createCommentDto) {
 		UserDto user = getUserById(userId);
-		EventDto event = getEventById(eventId);
+		EventClientDto event = getEventById(eventId);
 
 		Comment comment = Comment.builder()
 				.author(user.getId())
@@ -103,8 +103,8 @@ public class CommentServiceImpl implements CommentService {
 		return optionalUser.get();
 	}
 
-	private EventDto getEventById(Long eventId) {
-		Optional<EventDto> optionalEvent = Optional.ofNullable(eventClient.getEvent(eventId));
+	private EventClientDto getEventById(Long eventId) {
+		Optional<EventClientDto> optionalEvent = Optional.ofNullable(eventClient.getEvent(eventId));
 		if (optionalEvent.isEmpty()) {
 			throw new NotFoundException("Event not found");
 		}

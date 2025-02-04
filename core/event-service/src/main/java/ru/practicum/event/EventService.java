@@ -27,7 +27,7 @@ public interface EventService {
 
 	EventRequestStatusUpdateResult changeStatusEventRequests(Long userId, Long eventId, EventRequestStatusUpdateRequest request);
 
-	EventDto saveEvent(EventDto event);
+	EventClientDto saveEvent(EventClientDto event);
 
-	EventDto getIntEvent(Long eventId);
+	EventClientDto getIntEvent(Long eventId);
 }

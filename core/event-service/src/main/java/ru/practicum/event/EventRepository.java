@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-	List<Event> findByInitiator(Long userId, Pageable pageable);
+	List<Event> findByInitiatorId(Long userId, Pageable pageable);
 
-	Optional<Event> findByIdAndInitiator(Long id, long initiatorId);
+	Optional<Event> findByIdAndInitiatorId(Long id, long initiatorId);
 
 	@Query("SELECT e FROM Event AS e " +
-			"WHERE ((:users) IS NULL OR e.initiator IN :users) " +
+			"WHERE ((:users) IS NULL OR e.initiatorId IN :users) " +
 			"AND ((:states) IS NULL OR e.state IN :states) " +
 			"AND ((:categories) IS NULL OR e.category.id IN :categories) " +
 			"AND ((cast(:rangeStart as timestamp) IS NULL OR e.eventDate >= :rangeStart) " +

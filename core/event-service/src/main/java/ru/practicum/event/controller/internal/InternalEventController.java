@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventDto;
+import ru.practicum.dto.event.EventClientDto;
 import ru.practicum.event.EventService;
 
 @RestController
@@ -16,13 +16,13 @@ public class InternalEventController {
 	private final EventService service;
 
 	@PostMapping
-	public EventDto saveEvent(@RequestBody EventDto event) {
+	public EventClientDto saveEvent(@RequestBody EventClientDto event) {
 		log.info("Запрос на сохранение event -> {}", event);
 		return service.saveEvent(event);
 	}
 
 	@GetMapping("/{eventId}")
-	public EventDto getEvent(@PathVariable Long eventId) {
+	public EventClientDto getEvent(@PathVariable Long eventId) {
 		log.info("Получить событие по eventId --> {}", eventId);
 		return service.getIntEvent(eventId);
 	}

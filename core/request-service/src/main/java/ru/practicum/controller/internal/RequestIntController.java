@@ -17,7 +17,7 @@ import java.util.List;
 public class RequestIntController {
 	private final RequestService requestService;
 
-	@GetMapping("/{eventId}")
+	@GetMapping("/event/{eventId}")
 	public List<RequestDto> getEventRequests(@PathVariable Long eventId) {
 		log.info("Получить запросы по eventId --> {}", eventId);
 		return requestService.getEventRequests(eventId);
@@ -30,7 +30,7 @@ public class RequestIntController {
 	}
 
 	@PostMapping
-	public List<RequestDto> saveRequests(@PathVariable List<RequestDto> requests) {
+	public List<RequestDto> saveRequests(@RequestBody List<RequestDto> requests) {
 		log.info("Сохранить запросы requests --> {}", requests);
 		return requestService.saveRequests(requests);
 	}
