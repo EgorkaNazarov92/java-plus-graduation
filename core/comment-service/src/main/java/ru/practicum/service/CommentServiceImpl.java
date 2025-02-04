@@ -27,7 +27,7 @@ public class CommentServiceImpl implements CommentService {
 	private final UserClient userClient;
 	private final EventClient eventClient;
 
-	private static final String COMMENT_NOT_FOUND = "Comment not found";
+	private static final String COMMENT_NOT_FOUND = "Comment not found, commentId = ";
 
 	@Override
 	@Transactional
@@ -106,7 +106,7 @@ public class CommentServiceImpl implements CommentService {
 	private EventClientDto getEventById(Long eventId) {
 		Optional<EventClientDto> optionalEvent = Optional.ofNullable(eventClient.getEvent(eventId));
 		if (optionalEvent.isEmpty()) {
-			throw new NotFoundException("Event not found");
+			throw new NotFoundException("Event not found, eventId = " + eventId);
 		}
 		return optionalEvent.get();
 	}
@@ -114,7 +114,7 @@ public class CommentServiceImpl implements CommentService {
 	private Comment getCommentById(Long commentId) {
 		Optional<Comment> optionalComment = commentRepository.findById(commentId);
 		if (optionalComment.isEmpty()) {
-			throw new NotFoundException(COMMENT_NOT_FOUND);
+			throw new NotFoundException(COMMENT_NOT_FOUND + commentId);
 		}
 		return optionalComment.get();
 	}

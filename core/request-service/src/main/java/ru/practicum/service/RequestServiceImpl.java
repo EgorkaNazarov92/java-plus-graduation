@@ -91,14 +91,14 @@ public class RequestServiceImpl implements RequestService {
 	}
 
 	private void checkRequest(Long userId, EventClientDto event) {
-		if (!requestRepository.findAllByRequesterAndEvent(userId, event.getId()).isEmpty())
-			throw new ConflictException("нельзя добавить повторный запрос");
 		if (event.getInitiator().getId().equals(userId))
 			throw new ConflictException("инициатор события не может добавить запрос на участие в своём событии");
 		if (!event.getState().equals(EventState.PUBLISHED))
 			throw new ConflictException("нельзя участвовать в неопубликованном событии");
 		if (event.getParticipantLimit() != 0 && event.getParticipantLimit().equals(event.getConfirmedRequests()))
 			throw new ConflictException("у события достигнут лимит запросов на участие");
+		if (!requestRepository.findAllByRequesterAndEvent(userId, event.getId()).isEmpty())
+			throw new ConflictException("нельзя добавить повторный запрос");
 	}
 
 	private EventClientDto getEvent(Long eventId) {

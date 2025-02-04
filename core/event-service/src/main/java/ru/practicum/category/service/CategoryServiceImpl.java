@@ -24,7 +24,7 @@ import java.util.Optional;
 public class CategoryServiceImpl implements CategoryService {
 	private final CategoryRepository categoryRepository;
 	private final EventRepository eventRepository;
-	private static final String CATEGORY_NOT_FOUND = "Category not found";
+	private static final String CATEGORY_NOT_FOUND = "Category not found, categoryId = ";
 	private static final String CATEGORY_NAME_EXIST = "Category with this name already exist";
 
 	@Override
@@ -35,11 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public CategoryDto getById(Long id) {
-		Optional<Category> category = categoryRepository.findById(id);
-		if (category.isEmpty()) {
-			throw new NotFoundException(CATEGORY_NOT_FOUND);
-		}
-		return CategoryMapper.INSTANCE.categoryToCategoryDto(category.get());
+		return CategoryMapper.INSTANCE.categoryToCategoryDto(getCategory(id));
 	}
 
 	@Override
@@ -54,11 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public CategoryDto update(Long id, CreateCategoryDto createCategoryDto) {
-		Optional<Category> category = categoryRepository.findById(id);
-		if (category.isEmpty()) {
-			throw new NotFoundException(CATEGORY_NOT_FOUND);
-		}
-		Category categoryToUpdate = category.get();
+		Category categoryToUpdate = getCategory(id);
 		categoryToUpdate.setName(createCategoryDto.getName());
 		try {
 			Category updated = categoryRepository.save(categoryToUpdate);
@@ -70,12 +62,17 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public void delete(Long id) {
-		Optional<Category> category = categoryRepository.findById(id);
-		if (category.isEmpty()) {
-			throw new NotFoundException(CATEGORY_NOT_FOUND);
-		}
+		getCategory(id);
 		List<Event> events = eventRepository.findByCategoryId(id);
 		if (!events.isEmpty()) throw new ConflictException("Есть привязанные события.");
 		categoryRepository.deleteById(id);
+	}
+
+	private Category getCategory(Long categoryId) {
+		Optional<Category> category = categoryRepository.findById(categoryId);
+		if (category.isEmpty()) {
+			throw new NotFoundException(CATEGORY_NOT_FOUND + categoryId);
+		}
+		return category.get();
 	}
 }
