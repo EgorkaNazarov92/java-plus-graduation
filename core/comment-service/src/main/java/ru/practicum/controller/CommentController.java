@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/comments")
 public class CommentController {
 	private final CommentService commentService;
 	private static final String PRIVATE_PATH = "/users/{userId}/events/{eventId}/comments";

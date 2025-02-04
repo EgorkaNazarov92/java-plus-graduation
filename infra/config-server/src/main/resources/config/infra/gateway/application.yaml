@@ -18,7 +18,7 @@ spring:
         - id: comment-service_route
           uri: lb://comment-service
           predicates:
-            - Path=/users/{userId}/events/{eventId}/comments/**, /events/{eventId}/comments/**
+            - Path=/comments/**
         - id: request-service_route
           uri: lb://request-service
           predicates:
